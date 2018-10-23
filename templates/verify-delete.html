@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 style="text-align: center">Are you sure you want to delete this entry?</h1>
+<form action="/complete-delete" method="post">
+    <input type="hidden" name="blog-id" value="{{blog.id}}"/>
+    <input type="submit" value="yes"/>
+</form>
+<form action="/blog" method="get">
+    <input type="submit" value="no"/>
+</form>
+<hr/>
+<h2>{{blog.title}}</h2>
+<p>{{blog.body}}</p>
+{% endblock %}

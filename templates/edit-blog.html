@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 style="text-align: center">Edit Blog Entry</h1>
+<form style="display: block;" action="/update-blog" method="post">
+    <input type="hidden" name="blog-id" value="{{blog.id}}"/>
+    <label style="display: block;">Current Title:</label>
+    <input type="text" name="title" value="{{blog.title}}"/>
+    <br>
+    <br>
+    <br>
+    <label style="display: block;">Current Content:  </label>
+    <textarea name="blog_text" rows="10" cols="30" >{{blog.body}}</textarea>
+    <br>
+    <br>
+    <br>
+    <input type="submit" value="Edit Entry" />   
+</form>
+<form action="/blog" method="get">
+    <input type="submit" value="Nevermind"/>
+</form>
+{% endblock %}

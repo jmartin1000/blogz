@@ -2,6 +2,14 @@
 
 {% block content %}
 <h1 style="text-align: center">{{blog.title}}</h1>
+<form action="/edit-blog" method="post">
+    <input type="hidden" name="blog-id" value="{{blog.id}}"/>
+    <input type="submit" value="edit blog"/>
+</form>
+<form action="/delete-blog" method="post">
+    <input type="hidden" name="blog-id" value="{{blog.id}}"/>
+    <input type="submit" value="delete blog"/>
+</form>
 <hr/>
 <p>{{blog.body}}</p>
 {% endblock %}
