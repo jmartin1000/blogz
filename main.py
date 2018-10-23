@@ -24,8 +24,14 @@ class Blog(db.Model):
 
 @app.route('/blog')
 def show_blogs():
-    blogs = Blog.query.all()
-    return render_template('blog-list.html', blogs=blogs)
+    if len(request.args) == 0:
+        blogs = Blog.query.all()
+        return render_template('blog-list.html', blogs=blogs)
+    else:
+        blog_id = request.args.get('id')
+        blog = Blog.query.get(blog_id)
+        return render_template('blog-page.html', blog=blog)
+
 
 @app.route("/newpost", methods=['GET', 'POST'])
 def compose_blog():
@@ -45,8 +51,9 @@ def compose_blog():
             new_blog = Blog(blog_title, content)
             db.session.add(new_blog)
             db.session.commit()
-
-            return redirect('/blog')
+            view = Blog.query.filter_by(title=blog_title).first()
+            blog_id = str(view.id)
+            return redirect('/blog?id=' + blog_id)
 
     #pull info from form when request is a GET
     blog_title = request.args.get('title')

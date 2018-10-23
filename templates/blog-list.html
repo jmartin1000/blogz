@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 style="text-align: center">Blogs</h1><h2>Completed </h2>
+<h1 style="text-align: center">Blogs</h1>
     {% if blogs|length == 0 %}
     <p>Time to Blog Something!</p>
     {% else %}
         <ul>
             {% for blog in blogs %}
                 <li>
-                    <h4>{{ blog.title }}</h4>
+                    <a href="./blog?id={{blog.id}}"><h4>{{ blog.title }}</h4></a>
                     <p>{{ blog.body }} </p>
                     <hr/>
                 </li>
