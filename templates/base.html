@@ -2,16 +2,22 @@
 <html>
     <head>
         <title>{{title}}</title>
+        <link rel="stylesheet" type="text/css" href="../../static/styles/base.css">
         <style>
             .error {
                 color: red;
             }
         </style>
+        
+
     </head>
-<body>
+
+<header>
     <a href="/blog">Main Blog Page</a>
     <a href="/newpost">Add a Blog Entry</a>
-
+    <h1 style="text-align: center">{{ header_title }}</h1>
+</header>  
+<body> 
     {% with messages = get_flashed_messages(with_categories=True) %}
     <ul>
         {% for category, message in messages %}

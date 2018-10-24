@@ -37,11 +37,12 @@ def show_blogs():
     # the sedond is when we want to view a page with only one  specified blog
     if len(request.args) == 0:
         blogs = Blog.query.filter_by(hidden=False).order_by(desc(Blog.pub_date)).all()
-        return render_template('blog-list.html', blogs=blogs)
+        return render_template('blog-list.html', blogs=blogs, header_title="Blogs")
     else:
         blog_id = request.args.get('id')
         blog = Blog.query.get(blog_id)
-        return render_template('blog-page.html', blog=blog)
+        header_title = blog.title
+        return render_template('blog-page.html', blog=blog, header_title=header_title)
 
 
 @app.route("/newpost", methods=['GET', 'POST'])
@@ -74,7 +75,7 @@ def compose_blog():
     blog_title = '' if blog_title is None else blog_title
     content = '' if content is None else content
     blog_date = datetime.utcnow() if blog_date is None else blog_date
-    return render_template('add-blog.html', title=blog_title, blog_text=content, blog_date=blog_date)
+    return render_template('add-blog.html', header_title='Add a Blog Entry',title=blog_title, blog_text=content, blog_date=blog_date)
 
 # opens a template that allows user to edit blog
 @app.route('/edit-blog', methods=['POST'])
@@ -83,7 +84,7 @@ def edit_blog():
     blog_id = int(request.form.get('blog-id'))
     blog = Blog.query.get(blog_id)
 
-    return render_template('edit-blog.html', blog=blog)
+    return render_template('edit-blog.html', blog=blog, header_title="Edit Blog Entry")
 
 # does the work of updating the entry in the database
 @app.route('/update-blog', methods=['POST'])
@@ -109,7 +110,7 @@ def delete_blog():
     blog_id = int(request.form.get('blog-id'))
     blog = Blog.query.get(blog_id)
 
-    return render_template('verify-delete.html', blog=blog)
+    return render_template('verify-delete.html', blog=blog, header_title="Are you sure you want to delete?")
 
 # updates the entry to "hide" the blog entry
 @app.route('/complete-delete', methods=['POST'])
