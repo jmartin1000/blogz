@@ -7,11 +7,11 @@
     {% else %}
         <ul>
             {% for blog in blogs %}
-                <li>
-                    <a href="./blog?id={{blog.id}}"><h4>{{ blog.title }}</h4></a>
-                    <p>{{ blog.body }}</p>
-                    <hr/>
-                </li>
+                <a href="./blog?id={{blog.id}}"><h3>{{ blog.title }}</h3></a>
+                <p style="max-width: 1200px; height: 30px; white-space: nowrap; overflow: 
+                hidden; text-overflow: ellipsis; padding: 0px 25px; color: dimgray;">{{ blog.body }}</p>
+                <p style="font-size: 12px; color: silver; font-weight: em;">{{ blog.pub_date}}</p>
+                <hr />
             {% endfor %}
         </ul>
     {% endif %}

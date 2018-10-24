@@ -12,10 +12,14 @@
     <label style="display: block;">Current Content:  </label>
     <textarea name="blog_text" rows="10" cols="30" >{{blog.body}}</textarea>
     <br>
+    <label style="display: block;">Date:</label>
+    <input type="datetime" name="date" value={{blog.pub_date}} />
     <br>
     <br>
-    <input type="submit" value="Edit Entry" />   
+    <br>
+    <input type="submit" value="Update Entry" />   
 </form>
+<br>
 <form action="/blog" method="get">
     <input type="submit" value="Nevermind"/>
 </form>
