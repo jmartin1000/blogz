@@ -2,20 +2,20 @@
 
 {% block content %}
 <!--<h1 style="text-align: center">Add a Blog Entry</h1>-->
-<form style="display: block;" action="/newpost" method="post">
-    <label style="display: block;">Title for your new blog:</label>
+<form action="/newpost" method="post">
+    <label>Title for your new blog:</label>
     <input type="text" name="title" value="{{title}}"/>
     <br>
     <br>
     <br>
-    <label style="display: block;">Your new blog:  </label>
-    <textarea name="blog_text" rows="10" cols="40" >{{blog_text}}</textarea>
+    <label>Your new blog:  </label>
+    <textarea name="blog_text">{{blog_text}}</textarea>
     <br>
-    <label style="display: block;">Date:</label>
-    <input type="datetime" name="date" value={{blog_date}} />
+    <label>Date:</label>
+    <input class="datetime" type="datetime" name="date" value={{blog_date}} />
     <br>
     <br>
     <br>
-    <input type="submit" value="Add Entry" />
+    <input class="submit-button" type="submit" value="Add Entry" />
 </form>
 {% endblock %}

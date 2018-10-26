@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!--<h1 style="text-align: center">{{blog.title}}</h1>-->
-<p style="text-align: center; color: dimgray; font-size: 12px;">{{blog.pub_date}}</p>
-<div style="text-align: center;">
-<form action="/edit-blog" method="post" style="display: inline-block; margin: 10px 30px;">
-    <input type="hidden" name="blog-id" value="{{blog.id}}"/>
-    <input type="submit" value="edit blog"/>
-</form>
-<form action="/delete-blog" method="post" style="display: inline-block; margin: 10px 30px;">
-    <input type="hidden" name="blog-id" value="{{blog.id}}"/>
-    <input type="submit" value="delete blog"/>
-</form>
+<!--<h1 style="text-align: center">Are you sure you want to delete this entry?</h1>-->
+<div class="button-container">
+    <form style="display: inline;" action="/edit-blog" method="post">
+        <input type="hidden" name="blog-id" value="{{blog.id}}"/>
+        <input class="submit-button" type="submit" value="edit"/>
+    </form>
+    <form style="display: inline;" action="/delete-blog" method="post">
+        <input type="hidden" name="blog-id" value="{{blog.id}}"/>
+        <input class="submit-button" type="submit" value="delete"/>
+    </form>
 </div>
 <hr/>
-<p style="padding: 10px 100px;">{{blog.body}}</p>
+<p style="font-size: 16px; margin: 10px 50px;">{{blog.body}}</p>
+<p class="date">published: {{blog.pub_date}}</p>
 {% endblock %}

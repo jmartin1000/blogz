@@ -13,9 +13,11 @@
     </head>
 
 <header>
-    <a href="/blog">Main Blog Page</a>
-    <a href="/newpost">Add a Blog Entry</a>
-    <h1 style="text-align: center">{{ header_title }}</h1>
+    <div style="float: left">
+        <a href="/blog"><h5>Main Blog Page</h5></a>
+        <a href="/newpost"><h5>Add a Blog Entry</h5></a>
+    </div>
+        <h1>{{ header_title }}</h1>
 </header>  
 <body> 
     {% with messages = get_flashed_messages(with_categories=True) %}

@@ -1,26 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!--<h1 style="text-align: center">Edit Blog Entry</h1>-->
-<form style="display: block;" action="/update-blog" method="post">
+<div class="form-container">
+<form style="display: inline-block;" action="/update-blog" method="post">
     <input type="hidden" name="blog-id" value="{{blog.id}}"/>
-    <label style="display: block;">Current Title:</label>
+    <label>Current Title:</label>
     <input type="text" name="title" value="{{blog.title}}"/>
     <br>
     <br>
     <br>
-    <label style="display: block;">Current Content:  </label>
+    <label>Current Content:  </label>
     <textarea name="blog_text" rows="10" cols="30" >{{blog.body}}</textarea>
     <br>
-    <label style="display: block;">Date:</label>
-    <input type="datetime" name="date" value={{blog.pub_date}} />
+    <label>Date:</label>
+    <input class="datetime" type="text" name="date" value='{{blog.pub_date}}' />
     <br>
     <br>
     <br>
-    <input type="submit" value="Update Entry" />   
+    <input class="submit-button" type="submit" value="Update" /> 
 </form>
-<br>
-<form action="/blog" method="get">
-    <input type="submit" value="Nevermind"/>
+<form style="display: inline-block;" action="/blog" method="get">
+    <input class="submit-button" type="submit" value="Nevermind"/>
 </form>
+</div>
+</div>
 {% endblock %}

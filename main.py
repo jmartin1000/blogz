@@ -83,8 +83,11 @@ def edit_blog():
 
     blog_id = int(request.form.get('blog-id'))
     blog = Blog.query.get(blog_id)
+    print("blog.pub_date = ",blog.pub_date)
+    blog_date = str(blog.pub_date)
+    print("blog_date = ",blog_date)
 
-    return render_template('edit-blog.html', blog=blog, header_title="Edit Blog Entry")
+    return render_template('edit-blog.html', blog=blog, blog_date=blog_date, header_title="Edit Blog Entry")
 
 # does the work of updating the entry in the database
 @app.route('/update-blog', methods=['POST'])
@@ -97,9 +100,11 @@ def update_blog():
     blog = Blog.query.get(blog_id)
     blog.title = new_title
     blog.body = new_body
-    blog.pub_date = new_date
+    #blog.pub_date = new_date
+    blog.pub_date = datetime.utcnow() if new_date is None else new_date
     db.session.add(blog)
     db.session.commit()
+    print("blog.pub_date = ", blog.pub_date)
     
     return redirect('/blog?id='+str(blog_id))
 

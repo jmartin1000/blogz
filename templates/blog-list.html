@@ -8,7 +8,7 @@
     {% else %}
         <ul>
             {% for blog in blogs %}
-                <a href="./blog?id={{blog.id}}"><h3>{{ blog.title }}</h3></a>
+                <a href="./blog?id={{blog.id}}"><h4>{{ blog.title }}</h4></a>
                 <p class="description">{{ blog.body }}</p>
                 <p class="date">published: {{ blog.pub_date}}</p>
                 <hr />

@@ -66,7 +66,7 @@ header {
 h1 { 
     color: whitesmoke;
     display: block;
-    font-size: 2em;
+    font-size: 2.5em;
     margin-top: 0.67em;
     margin-bottom: 0.67em;
     margin-left: 0;
@@ -82,6 +82,7 @@ h2 {
     margin-left: 0;
     margin-right: 0;
     font-weight: bold;
+    color: #3C62A6;
 }
 
 h3 { 
@@ -97,21 +98,22 @@ h3 {
 h4 { 
     display: block;
     font-size: 1em;
-    margin-top: 1.33em;
-    margin-bottom: 1.33em;
+    margin-top: 0.75em;
+    margin-bottom: 0.25em;
     margin-left: 0;
     margin-right: 0;
     font-weight: bold;
 }
 
 h5 { 
-    display: block;
+    display: inline;
     font-size: .83em;
     margin-top: 1.67em;
     margin-bottom: 1.67em;
     margin-left: 0;
     margin-right: 0;
     font-weight: bold;
+    color: white;
 }
 
 h6 { 
@@ -124,20 +126,91 @@ h6 {
     font-weight: bold;
 }
 
-label {
-    display: block;
-}
-
 p {
     font-size: .67em;
-    margin-top: 2.33em;
-    margin-bottom: 2.33em;
+    margin-top: 1em;
+    margin-bottom: 1em;
     margin-left: 0;
     margin-right: 0;
     font-weight: normal;
-
 }
 
+form {
+    display: block;
+    width: 50%;
+    align-self: left;
+    padding: 5%;
+}
+
+label {
+    display: block;
+    font-size: 1.25em;
+    margin-top: 0.83em;
+    margin-bottom: 0.33em;
+    margin-left: 0;
+    margin-right: 0;
+    font-weight: bold;
+    color:  #3C62A6;
+}
+
+textarea {
+    width: 90%;
+    height: 300px;
+    font-size: 16px;
+    padding: 10px 10px;
+}
+
+input {
+    width: 90%; 
+    height: 30px; 
+    font-size: 20px;
+    color: #3C62A6;
+    padding: 5px 5px;
+}
+
+.datetime {
+    width: 50%; 
+    height:25px; 
+    font-size:15px;
+    color: #3C62A6;
+    padding: 5px 5px;
+}
+
+.submit-button {
+    background-color: #6098FA;
+    width: 30%;
+    height: 35px;
+    font-size: 20px;
+    color: white;
+    padding: 5px 5px;
+    font-weight: bold;
+    vertical-align: center;
+}
+
+.button-container {
+    width: 60%;
+    height: 40px;
+    margin: 15px auto;
+    text-align: center;
+    padding: 20px 0 10px 0;
+}
+
+.form-container {
+    width: 100%;
+    display: inline-block;
+}
+
+.side-by-side {
+    display: inline-block;
+    height: 40px;
+}
+
+.underneath {
+    display: block;
+    width: 50%;
+    align-self: left;
+    padding: 0;
+}
 
 .description {
     max-width: 1200px; 
