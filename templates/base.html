@@ -9,14 +9,23 @@
             }
         </style>
         
-
     </head>
 
 <header>
     <div style="float: left">
+        {% if 'username' in session %}
         <a href="/blog"><h5>Main Blog Page</h5></a>
         <a href="/newpost"><h5>Add a Blog Entry</h5></a>
+        {% endif %}
     </div>
+    <div style='float: right'>
+        {% if 'username' in session %}
+          <h5>Welcome, {{ session['username'] }}</h5>
+          <a href="/logout"><h5>log out</h5></a>
+        {% else %}
+          <a href="/login"><h5>login</h5></a> | <a href="/signup"><h5>register</h5></a>| <a href="/"><h5>Home</h5></a>
+        {% endif %}
+      </div>
         <h1>{{ header_title }}</h1>
 </header>  
 <body> 
