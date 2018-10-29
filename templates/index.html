@@ -1,5 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>We'll see a list of registered users here</h2>
+<h2>Registered bloggers</h2>
+{% if users|length == 0 %}
+<p>Just waiting for some bloggers!!</p>
+{% else %}
+    <ul>
+        {% for user in users %}
+            <p></p>
+            <a href="/blog?user={{user.id}}"><h4>{{ user.username }}</h4></a>
+            <p></p>
+            <hr />
+        {% endfor %}
+    </ul>
+{% endif %}
 {% endblock %}

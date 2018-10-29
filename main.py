@@ -1,7 +1,7 @@
 from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from sqlalchemy import desc
+from sqlalchemy import desc, asc
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -47,13 +47,15 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'signup']
+    allowed_routes = ['login', 'signup', 'index', 'show_blogs']
     if request.endpoint not in allowed_routes and "username" not in session:
         return redirect('/login')
 
 @app.route('/')
 def index():
-    return render_template('index.html', header_title='Home')
+    #blogs = Blog.query.filter_by(hidden=False).order_by(desc(Blog.pub_date)).all()
+    users = User.query.order_by(asc(User.username)).all()
+    return render_template('index.html', header_title='Blogz', users=users)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -63,17 +65,17 @@ def signup():
         verify = request.form.get('verify')
         # validate user name
         if len(username) < 3:
-            flash('Valid username must be at least 3 characters')
+            flash('Valid username must be at least 3 characters', 'error')
             return redirect('/signup')
         elif not is_distinct(username):
-            flash(username + ' already in use')
+            flash(username + ' already in use', 'error')
             return redirect('/signup')
         # validate password
         elif not password:
-            flash('Oops! Did you forget to enter a password?')
+            flash('Oops! Did you forget to enter a password?', 'error')
             return redirect('/signup')
         elif password != verify:
-            flash('The passwords do not match')
+            flash('The passwords do not match', 'error')
             return redirect('/signup')
         # all is well - create user and open session
         else:
@@ -102,10 +104,10 @@ def login():
             session['username'] = username
             return redirect('/newpost')
         elif not user:
-            flash(user + ' is not a registered username')
+            flash(user + ' is not a registered username', 'error')
             return redirect('/login')
         elif password != user.password:
-            flash('invalid password')
+            flash('invalid password', 'error')
             return redirect('/login')
     return render_template('login.html', header_title='Log into Blogz!')
 
@@ -122,12 +124,25 @@ def show_blogs():
     if len(request.args) == 0:
         blogs = Blog.query.filter_by(hidden=False).order_by(desc(Blog.pub_date)).all()
         return render_template('blog-list.html', blogs=blogs, header_title="Blogs")
-    else:
+    elif not request.args.get('user'):
         blog_id = request.args.get('id')
         blog = Blog.query.get(blog_id)
         header_title = blog.title
-        curr_user = User.query.filter_by(username=session['username']).first()
-        return render_template('blog-page.html', blog=blog, header_title=header_title, curr_user=curr_user)
+        if 'username' in session:
+            curr_user = User.query.filter_by(username=session['username']).first()
+            return render_template('blog-page.html', blog=blog, header_title=header_title, curr_user=curr_user)
+        else:
+            return render_template('blog-page.html', blog=blog, header_title=header_title)
+    elif not request.args.get('id'):
+        user_id = request.args.get('user')
+        user = User.query.get(user_id)
+        header_title = 'Blogs by ' + user.username
+        blogs = Blog.query.filter_by(owner_id=user.id, hidden=False).order_by(desc(Blog.pub_date)).all()
+        if 'username' in session:
+            curr_user = User.query.filter_by(username=session['username']).first()
+            return render_template('blog-list.html', blogs=blogs, header_title=header_title, curr_user=curr_user)
+        else:
+            return render_template('blog-list.html', blogs=blogs, header_title=header_title)
 
 
 @app.route("/newpost", methods=['GET', 'POST'])
@@ -150,14 +165,11 @@ def compose_blog():
             return redirect('/newpost?title='+ blog_title +'&blog_date=' + date)
         else:
             owner = User.query.filter_by(username=session['username']).first()
-            print('ALERT!!! new post blog title = ', blog_title, "owner id = ", owner.id)
             new_blog = Blog(blog_title, content, date, owner.id)
             db.session.add(new_blog)
             db.session.commit()
             view = Blog.query.filter_by(title=blog_title).first()
             blog_id = str(view.id)
-            print('ALERT!!! new post blog id = ', blog_id)
-            print("BLOG ID of new post =", blog_id)
             return redirect('/blog?id=' + blog_id + 'header_title=' + blog_title)
 
     #pull info from form when request is a GET
@@ -175,9 +187,7 @@ def edit_blog():
 
     blog_id = int(request.form.get('blog-id'))
     blog = Blog.query.get(blog_id)
-    print("blog.pub_date = ",blog.pub_date)
     blog_date = str(blog.pub_date)
-    print("blog_date = ",blog_date)
 
     return render_template('edit-blog.html', blog=blog, blog_date=blog_date, header_title="Edit Blog Entry")
 
@@ -192,11 +202,9 @@ def update_blog():
     blog = Blog.query.get(blog_id)
     blog.title = new_title
     blog.body = new_body
-    #blog.pub_date = new_date
     blog.pub_date = datetime.utcnow() if new_date is None else new_date
     db.session.add(blog)
     db.session.commit()
-    print("blog.pub_date = ", blog.pub_date)
     
     return redirect('/blog?id='+str(blog_id))
 
