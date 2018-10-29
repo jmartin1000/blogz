@@ -10,7 +10,7 @@
             {% for blog in blogs %}
                 <a href="./blog?id={{blog.id}}"><h4>{{ blog.title }}</h4></a>
                 <p class="description">{{ blog.body }}</p>
-                <p class="date">published: {{ blog.pub_date}}</p>
+                <p class="date">published by {{ blog.owner.username}} on {{ blog.pub_date}}</p>
                 <hr />
             {% endfor %}
         </ul>

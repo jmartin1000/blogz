@@ -25,7 +25,7 @@ class Blog(db.Model):
         self.title = title
         self.body = body
         self.pub_date = datetime.utcnow()
-        self.owner = owner
+        self.owner_id = owner
         self.hidden = False
     
     def __repr__(self):
@@ -126,7 +126,8 @@ def show_blogs():
         blog_id = request.args.get('id')
         blog = Blog.query.get(blog_id)
         header_title = blog.title
-        return render_template('blog-page.html', blog=blog, header_title=header_title)
+        curr_user = User.query.filter_by(username=session['username']).first()
+        return render_template('blog-page.html', blog=blog, header_title=header_title, curr_user=curr_user)
 
 
 @app.route("/newpost", methods=['GET', 'POST'])
@@ -135,6 +136,7 @@ def compose_blog():
     #owner = User.query.filter_by(email=session['email']).first()
 
     if request.method == 'POST':
+        print("/newpost POST method initiated")
         # pull info from form
         blog_title = request.form.get('title')
         content = request.form.get('blog_text')
@@ -145,14 +147,18 @@ def compose_blog():
             return redirect('/newpost?blog_text='+content+'&blog_date='+date)
         elif (not content) or (content.strip() == ''):
             flash("What's a blog without content?", 'error')
-            return redirect('/newpost?title='+blog_title+'&blog_date='+date)
+            return redirect('/newpost?title='+ blog_title +'&blog_date=' + date)
         else:
-            new_blog = Blog(blog_title, content, date, owner)
+            owner = User.query.filter_by(username=session['username']).first()
+            print('ALERT!!! new post blog title = ', blog_title, "owner id = ", owner.id)
+            new_blog = Blog(blog_title, content, date, owner.id)
             db.session.add(new_blog)
             db.session.commit()
             view = Blog.query.filter_by(title=blog_title).first()
             blog_id = str(view.id)
-            return redirect('/blog?id=' + blog_id)
+            print('ALERT!!! new post blog id = ', blog_id)
+            print("BLOG ID of new post =", blog_id)
+            return redirect('/blog?id=' + blog_id + 'header_title=' + blog_title)
 
     #pull info from form when request is a GET
     blog_title = request.args.get('title')
