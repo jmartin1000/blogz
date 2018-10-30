@@ -17,7 +17,7 @@
 </div>
 {% endif %}
 <hr/>
-<p style="font-size: 16px; margin: 10px 50px;">{{blog.body}}</p>
-<a href="/blog?user={{blog.owner.id}}"><p class="date">author: {{blog.owner.username}}</p></a>
+<p style="font-size: 16px; margin: 10px 50px; white-space: pre-wrap;">{{blog.body}}</p>
+<p class="date">author: <a href="/blog?user={{blog.owner.id}}">{{blog.owner.username}}</a></p>
 <p class="date">date: {{blog.pub_date}}</p>
 {% endblock %}

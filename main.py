@@ -1,49 +1,12 @@
 from flask import Flask, request, redirect, render_template, session, flash
-from flask_sqlalchemy import SQLAlchemy
+#from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import desc, asc
+from app import app, db
+from models import User, Blog
+from hashutils import make_pw_hash, make_salt, check_pw_hash
 
-app = Flask(__name__)
-app.config['DEBUG'] = True
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://user-name:user-pswd@localhost:8889/db_name'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogz@localhost:8889/blogz'
-app.config['SQLALCHEMY_ECHO'] = True
-db = SQLAlchemy(app)
 app.secret_key = 'Gs3k&zc3y73PBy'
-
-
-class Blog(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(120))
-    body = db.Column(db.Text)
-    pub_date = db.Column(db.DateTime)
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    hidden = db.Column(db.Boolean)
-
-    def __init__(self, title, body, pub_date, owner):
-        self.title = title
-        self.body = body
-        self.pub_date = datetime.utcnow()
-        self.owner_id = owner
-        self.hidden = False
-    
-    def __repr__(self):
-        return '<Blog %r>' % self.title
-
-class User(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(120))
-    blogs = db.relationship('Blog', backref='owner')
-
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-
-    def __repr__(self):
-        return '<User %r>' %self.username
 
 @app.before_request
 def require_login():
@@ -100,13 +63,13 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         user = User.query.filter_by(username=username).first()
-        if user and user.password == password:
+        if user and check_pw_hash(password, user.pw_hash):
             session['username'] = username
             return redirect('/newpost')
         elif not user:
             flash(user + ' is not a registered username', 'error')
             return redirect('/login')
-        elif password != user.password:
+        elif not check_pw_hash(password, user.pw_hash):
             flash('invalid password', 'error')
             return redirect('/login')
     return render_template('login.html', header_title='Log into Blogz!')

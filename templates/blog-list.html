@@ -3,9 +3,9 @@
 {% block content %}
 
 <!--<h1 style="text-align: center">Blogs</h1>-->
-    {% if blogs|length == 0 %}
+    <!-- if blogs|length == 0 -->
     <p>Time to Blog Something!</p>
-    {% else %}
+    <!--else -->
         <ul>
             {% for blog in blogs %}
                 <a href="./blog?id={{blog.id}}"><h4>{{ blog.title }}</h4></a>
@@ -14,5 +14,5 @@
                 <hr />
             {% endfor %}
         </ul>
-    {% endif %}
+    <!-- endif -->
 {% endblock %}
