@@ -10,7 +10,7 @@ app.secret_key = 'Gs3k&zc3y73PBy'
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'signup', 'index', 'show_blogs']
+    allowed_routes = ['login', 'signup', 'index', 'show_blogs', 'static']
     if request.endpoint not in allowed_routes and "username" not in session:
         return redirect('/login')
 
@@ -82,17 +82,14 @@ def logout():
 
 @app.route('/blog')
 def show_blogs():
-    print('!!!!!! ARGS: page=', request.args.get('page'), 'user=', request.args.get('user'), 'blog id=', request.args.get('id'))
     # need this if statement to deal with two diff get posts 
     # the first is the case when we want the blog list to load
     # the sedond is when we want to view a page with only one  specified blog
     if (request.args.get('user') == None or request.args.get('user') == '') and (request.args.get('id') == None or request.args.get('id') == ''):
-        print('!!!!! CASE 1')
         page = request.args.get('page', 1, type=int)
         blogs = Blog.query.filter_by(hidden=False).order_by(desc(Blog.pub_date)).paginate(page=page, per_page=5)
         return render_template('blog-list.html', blogs=blogs, header_title="Blogs")
     elif request.args.get('id') != None:
-        print('!!!!! CASE 2')
         blog_id = request.args.get('id')
         blog = Blog.query.get(blog_id)
         header_title = blog.title
@@ -102,7 +99,6 @@ def show_blogs():
         else:
             return render_template('blog-page.html', blog=blog, header_title=header_title)
     elif request.args.get('user') != None:
-        print('!!!!! CASE 3')
         page = request.args.get('page', 1, type=int)
         user_id = request.args.get('user')
         user = User.query.get(user_id)
@@ -117,9 +113,6 @@ def show_blogs():
 
 @app.route("/newpost", methods=['GET', 'POST'])
 def compose_blog():
-    # add this line after esatablishing sessions, to identify owner
-    #owner = User.query.filter_by(email=session['email']).first()
-
     if request.method == 'POST':
         print("/newpost POST method initiated")
         # pull info from form
