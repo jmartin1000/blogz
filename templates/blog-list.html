@@ -3,16 +3,34 @@
 {% block content %}
 
 <!--<h1 style="text-align: center">Blogs</h1>-->
-    <!-- if blogs|length == 0 -->
+    {% if blogs.items|length == 0 %}
     <p>Time to Blog Something!</p>
-    <!--else -->
+    {% else %}
         <ul>
-            {% for blog in blogs %}
+            {% for blog in blogs.items %}
                 <a href="./blog?id={{blog.id}}"><h4>{{ blog.title }}</h4></a>
                 <p class="description">{{ blog.body }}</p>
                 <p class="date">published by <a href="/blog?user={{blog.owner.id}}">{{ blog.owner.username}}</a> on {{ blog.pub_date}}</p>
                 <hr />
             {% endfor %}
         </ul>
-    <!-- endif -->
+    {% endif %}
+    <br>
+    <br>
+    {% for page_num in blogs.iter_pages() %}
+        {% if page_num %}
+            {% if page_num == blogs.page %}
+                <a href="/blog?user={{owner_id}}&page={{page_num}}"><span style="font-weight: bold;">{{ page_num }}</span></a>
+            {% else %}
+                <a href="/blog?user={{owner_id}}&page={{page_num}}">{{ page_num }}</a>
+            {% endif %}
+        {% else %}
+            ...
+        {% endif %}
+    {% endfor %}
+    <br>
+    <br>
+    <br>
+    <br>
+    
 {% endblock %}

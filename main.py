@@ -16,8 +16,9 @@ def require_login():
 
 @app.route('/')
 def index():
+    page = request.args.get('page', 1, type=int)
     #blogs = Blog.query.filter_by(hidden=False).order_by(desc(Blog.pub_date)).all()
-    users = User.query.order_by(asc(User.username)).all()
+    users = User.query.order_by(asc(User.username)).paginate(page=page, per_page=5)
     return render_template('index.html', header_title='Blogz', users=users)
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -77,17 +78,21 @@ def login():
 @app.route('/logout')
 def logout():
     del session['username']
-    return redirect("/blog")
+    return redirect("/blog")  
 
 @app.route('/blog')
 def show_blogs():
+    print('!!!!!! ARGS: page=', request.args.get('page'), 'user=', request.args.get('user'), 'blog id=', request.args.get('id'))
     # need this if statement to deal with two diff get posts 
     # the first is the case when we want the blog list to load
     # the sedond is when we want to view a page with only one  specified blog
-    if len(request.args) == 0:
-        blogs = Blog.query.filter_by(hidden=False).order_by(desc(Blog.pub_date)).all()
+    if (request.args.get('user') == None or request.args.get('user') == '') and (request.args.get('id') == None or request.args.get('id') == ''):
+        print('!!!!! CASE 1')
+        page = request.args.get('page', 1, type=int)
+        blogs = Blog.query.filter_by(hidden=False).order_by(desc(Blog.pub_date)).paginate(page=page, per_page=5)
         return render_template('blog-list.html', blogs=blogs, header_title="Blogs")
-    elif not request.args.get('user'):
+    elif request.args.get('id') != None:
+        print('!!!!! CASE 2')
         blog_id = request.args.get('id')
         blog = Blog.query.get(blog_id)
         header_title = blog.title
@@ -96,16 +101,18 @@ def show_blogs():
             return render_template('blog-page.html', blog=blog, header_title=header_title, curr_user=curr_user)
         else:
             return render_template('blog-page.html', blog=blog, header_title=header_title)
-    elif not request.args.get('id'):
+    elif request.args.get('user') != None:
+        print('!!!!! CASE 3')
+        page = request.args.get('page', 1, type=int)
         user_id = request.args.get('user')
         user = User.query.get(user_id)
         header_title = 'Blogs by ' + user.username
-        blogs = Blog.query.filter_by(owner_id=user.id, hidden=False).order_by(desc(Blog.pub_date)).all()
+        blogs = Blog.query.filter_by(owner_id=user.id, hidden=False).order_by(desc(Blog.pub_date)).paginate(page=page, per_page=5)
         if 'username' in session:
             curr_user = User.query.filter_by(username=session['username']).first()
-            return render_template('blog-list.html', blogs=blogs, header_title=header_title, curr_user=curr_user)
+            return render_template('blog-list.html', blogs=blogs, owner_id=user.id, header_title=header_title, curr_user=curr_user)
         else:
-            return render_template('blog-list.html', blogs=blogs, header_title=header_title)
+            return render_template('blog-list.html', blogs=blogs, owner_id=user_id, header_title=header_title)
 
 
 @app.route("/newpost", methods=['GET', 'POST'])
