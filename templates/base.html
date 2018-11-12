@@ -5,7 +5,12 @@
         <link rel="stylesheet" type="text/css" href="../../static/styles/base.css">
         <style>
             .error {
+                font-size: 16px;
                 color: red;
+            }
+            .success {
+                font-size: 16px;
+                color: green;
             }
         </style>
         
@@ -18,8 +23,8 @@
     <div style='float: right'>
         {% if 'username' in session %}
         <ul>
-          <li><h5>Welcome, {{ session['username'] }}!</h5></li>
-          <li><a href="/newpost"><h5>new blog</h5></a> | <a href="/logout"><h5>log out</h5></a></li>
+          <li><h5>Welcome, {{ session['username'] }}!</h5> | <a href="/logout"><h5>log out</h5></a></li>
+          <li><a href="/newpost"><h5>new blog</h5></a> | <a href="/editprofile"><h5>edit profile</h5></a></li>
         </ul>
         {% else %}
           <a href="/login"><h5>login</h5></a> | <a href="/signup"><h5>register</h5></a>| <a href="/"><h5>Home</h5></a>

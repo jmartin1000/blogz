@@ -24,12 +24,14 @@ class Blog(db.Model):
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120))
     username = db.Column(db.String(120), unique=True)
     pw_hash = db.Column(db.String(120))
     blogs = db.relationship('Blog', backref='owner')
 
-    def __init__(self, username, password):
+    def __init__(self, email, username, password):
         self.username = username
+        self.email = email
         self.pw_hash = make_pw_hash(password)
 
     def __repr__(self):

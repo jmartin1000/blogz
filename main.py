@@ -4,13 +4,13 @@ from datetime import datetime
 from sqlalchemy import desc, asc
 from app import app, db
 from models import User, Blog
-from hashutils import make_pw_hash, make_salt, check_pw_hash
+from hashutils import make_pw_hash, make_salt, check_pw_hash, create_temp_pswd
 
 app.secret_key = 'Gs3k&zc3y73PBy'
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'signup', 'index', 'show_blogs', 'static']
+    allowed_routes = ['login', 'signup', 'index', 'show_blogs', 'static', 'requestpswd']
     if request.endpoint not in allowed_routes and "username" not in session:
         return redirect('/login')
 
@@ -51,6 +51,43 @@ def signup():
     else:
         return render_template('signup.html', header_title='Register with Blogz!')
 
+@app.route('/editprofile', methods=['GET', 'POST'])
+def edit_profile():
+    curr_username = session['username']
+    if request.method == 'GET':
+        return render_template('profile.html', curr_username=curr_username)
+    if request.method =='POST':
+        user = User.query.filter_by(username=session['username']).first()
+        original = request.form.get('old_password')
+        if check_pw_hash(original, user.pw_hash):
+            new = request.form.get('password')
+            name = request.form.get('username')
+            if name !='':
+                # validate user name
+                if len(name) < 3:
+                    flash('Valid username must be at least 3 characters', 'error')
+                    return redirect('/editprofile?curr_username=' + curr_username)
+                elif not is_distinct(name):
+                    flash('The username ' +name + ' is already in use', 'error')
+                    return redirect('/editprofile?curr_username=' + curr_username)
+                user.username = name
+                flash('You changed your username!', 'success')
+            if new !='':
+                verify = request.form.get('verify')
+                if new != verify:
+                    flash('The passwords do not match', 'error')
+                    return redirect('/editprofile?curr_username=' + curr_username +'&username=' + name)
+                new = make_pw_hash(new)
+                user.pw_hash = new
+                flash('You changed your password!', 'success')
+            db.session.add(user)
+            db.session.commit()
+            session['username'] = user.username
+            return redirect('/')
+        else:
+            flash('incorrect password', 'error')
+            return render_template('profile.html')
+
 def is_distinct(string):
     existing_user = User.query.filter_by(username=string).first()
     if not existing_user:
@@ -74,6 +111,24 @@ def login():
             flash('invalid password', 'error')
             return redirect('/login')
     return render_template('login.html', header_title='Log into Blogz!')
+
+
+@app.route('/requestpswd', methods=['GET', 'POST', 'PUT'])
+def requestpswd():
+    if request.method == 'GET':
+        return render_template('request-pswd.html', header_title='Request password') 
+    if request.method == 'POST':
+        username = request.form.get('username')
+        user = User.query.filter_by(username=username).first()
+        email = user.email
+        temp = create_temp_pswd()
+        temp_hashed = make_pw_hash(temp)
+        user.pw_hash = temp_hashed
+        db.session.add(user)
+        db.session.commit()
+        flash('pretend like this is being sent in an email', 'success')
+        return render_template('new-pswd.html', header_title='Temporary Password Request', username=username, email=email, temp=temp, temp_hashed=temp_hashed)
+    
 
 @app.route('/logout')
 def logout():

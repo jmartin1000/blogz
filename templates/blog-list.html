@@ -6,6 +6,7 @@
     {% if blogs.items|length == 0 %}
     <p>Time to Blog Something!</p>
     {% else %}
+    <div style="margin-right: 20px;">
         <ul>
             {% for blog in blogs.items %}
                 <a href="./blog?id={{blog.id}}"><h4>{{ blog.title }}</h4></a>
@@ -14,6 +15,7 @@
                 <hr />
             {% endfor %}
         </ul>
+    </div>
     {% endif %}
     <br>
     <br>
