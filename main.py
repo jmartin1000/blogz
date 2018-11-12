@@ -126,7 +126,6 @@ def requestpswd():
         user.pw_hash = temp_hashed
         db.session.add(user)
         db.session.commit()
-        flash('pretend like this is being sent in an email', 'success')
         return render_template('new-pswd.html', header_title='Temporary Password Request', username=username, email=email, temp=temp, temp_hashed=temp_hashed)
     
 
