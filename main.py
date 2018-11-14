@@ -121,6 +121,9 @@ def requestpswd():
     if request.method == 'POST':
         username = request.form.get('username')
         user = User.query.filter_by(username=username).first()
+        if not user:
+            flash(username + " is not a registered user", 'error')
+            return redirect('/requestpswd')
         email = user.email
         temp = create_temp_pswd()
         temp_hashed = make_pw_hash(temp)
