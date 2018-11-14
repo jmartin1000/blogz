@@ -1,8 +1,9 @@
 from flask import Flask, request, redirect, render_template, session, flash
 #from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail, Message
 from datetime import datetime
 from sqlalchemy import desc, asc
-from app import app, db
+from app import app, db, mail
 from models import User, Blog
 from hashutils import make_pw_hash, make_salt, check_pw_hash, create_temp_pswd
 
@@ -126,8 +127,12 @@ def requestpswd():
         user.pw_hash = temp_hashed
         db.session.add(user)
         db.session.commit()
-        flash('pretend like this is being sent in an email', 'success')
-        return render_template('new-pswd.html', header_title='Temporary Password Request', username=username, email=email, temp=temp, temp_hashed=temp_hashed)
+        msg = Message('Important Message from Blogz', sender = 'martin.jeniferc@gmail.com', recipients = [email])
+        msg.body = 'Hi There, '+ username +'! Your temporary Blogz password is: \n\t\t' + temp + '\nIf you did not initiate this request, you might want to call your mom.'
+        mail.send(msg)
+        flash('A temporary password has been sent to the email you have on file', 'success')
+        flash('Development alert: temp password is ' + temp, 'error')
+        return redirect('/')
     
 
 @app.route('/logout')
