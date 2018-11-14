@@ -84,6 +84,8 @@ def edit_profile():
             db.session.add(user)
             db.session.commit()
             session['username'] = user.username
+            if 'temp-pswd' in session:
+                del session['temp-pswd']
             return redirect('/')
         else:
             flash('incorrect password', 'error')
@@ -104,7 +106,10 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and check_pw_hash(password, user.pw_hash):
             session['username'] = username
-            return redirect('/newpost')
+            if 'temp-pswd' in session:
+                return render_template('profile.html', curr_username=user.username)
+            else:
+                return redirect('/newpost')
         elif not user:
             flash(user + ' is not a registered username', 'error')
             return redirect('/login')
@@ -135,6 +140,7 @@ def requestpswd():
         mail.send(msg)
         flash('A temporary password has been sent to the email you have on file', 'success')
         flash('Development alert: temp password is ' + temp, 'error')
+        session['temp-pswd'] = 'yes'
         return redirect('/')
     
 
@@ -148,7 +154,7 @@ def show_blogs():
     # need this if statement to deal with two diff get posts 
     # the first is the case when we want the blog list to load
     # the sedond is when we want to view a page with only one  specified blog
-    if (request.args.get('user') == None or request.args.get('user') == '') and (request.args.get('id') == None or request.args.get('id') == ''):
+    if (request.args.get('user') == None or request.args.get('user') == '') and (request.args.get('id') == None or request.args.get('id') == '') and (request.args.get('username') == None or request.args.get('username') == ''):
         page = request.args.get('page', 1, type=int)
         blogs = Blog.query.filter_by(hidden=False).order_by(desc(Blog.pub_date)).paginate(page=page, per_page=5)
         return render_template('blog-list.html', blogs=blogs, header_title="Blogs")
@@ -172,7 +178,13 @@ def show_blogs():
             return render_template('blog-list.html', blogs=blogs, owner_id=user.id, header_title=header_title, curr_user=curr_user)
         else:
             return render_template('blog-list.html', blogs=blogs, owner_id=user_id, header_title=header_title)
-
+    elif request.args.get('username') == 'current':
+        page = request.args.get('page', 1, type=int)
+        user = User.query.filter_by(username=session['username']).first()
+        header_title = 'Blogs by ' + user.username
+        blogs = Blog.query.filter_by(owner_id=user.id, hidden=False).order_by(desc(Blog.pub_date)).paginate(page=page, per_page=5)
+        return render_template('blog-list.html', blogs=blogs, owner_id=user.id, header_title=header_title, curr_user=user)
+        
 
 @app.route("/newpost", methods=['GET', 'POST'])
 def compose_blog():
@@ -228,7 +240,7 @@ def update_blog():
     blog = Blog.query.get(blog_id)
     blog.title = new_title
     blog.body = new_body
-    blog.pub_date = datetime.utcnow() if new_date is None else new_date
+    blog.pub_date = datetime.utcnow() if new_date == '' else new_date
     db.session.add(blog)
     db.session.commit()
     
