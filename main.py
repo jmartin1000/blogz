@@ -11,9 +11,20 @@ app.secret_key = 'Gs3k&zc3y73PBy'
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'signup', 'index', 'show_blogs', 'static', 'requestpswd']
-    if request.endpoint not in allowed_routes and "username" not in session:
-        return redirect('/login')
+    if 'temp-pswd' in session:
+        if 'username' in session:
+            allowed_routes = ['login', 'requestpswd', 'edit_profile', 'logout']
+            if request.endpoint not in allowed_routes:
+                flash('Since you are signed in with a temporary password, you must reset your password before doing anything else', 'error')
+                return render_template('profile.html', curr_username=session['username']) 
+        else:  
+            allowed_routes = ['login', 'requestpswd']
+            if request.endpoint not in allowed_routes:
+                return redirect('/login') 
+    else:
+        allowed_routes = ['login', 'signup', 'index', 'show_blogs', 'static', 'requestpswd', 'logout']
+        if request.endpoint not in allowed_routes and "username" not in session:
+            return redirect('/login')
 
 @app.route('/')
 def index():
@@ -80,16 +91,16 @@ def edit_profile():
                     return redirect('/editprofile?curr_username=' + curr_username +'&username=' + name)
                 new = make_pw_hash(new)
                 user.pw_hash = new
+                if 'temp-pswd' in session:
+                    del session['temp-pswd']
                 flash('You changed your password!', 'success')
             db.session.add(user)
             db.session.commit()
             session['username'] = user.username
-            if 'temp-pswd' in session:
-                del session['temp-pswd']
             return redirect('/')
         else:
             flash('incorrect password', 'error')
-            return render_template('profile.html')
+            return redirect('/editprofile?curr_username=' + curr_username)
 
 def is_distinct(string):
     existing_user = User.query.filter_by(username=string).first()
@@ -136,7 +147,7 @@ def requestpswd():
         db.session.add(user)
         db.session.commit()
         msg = Message('Important Message from Blogz', sender = 'martin.jeniferc@gmail.com', recipients = [email])
-        msg.body = 'Hi There, '+ username +'! Your temporary Blogz password is: \n\t\t' + temp + '\nIf you did not initiate this request, you might want to call your mom.'
+        msg.body = 'Hi There, '+ username +'!/n/nYour temporary Blogz password is: \n\t\t' + temp + '\nIf you did not initiate this request, you might want to call your mom.'
         mail.send(msg)
         flash('A temporary password has been sent to the email you have on file', 'success')
         flash('Development alert: temp password is ' + temp, 'error')
@@ -151,13 +162,12 @@ def logout():
 
 @app.route('/blog')
 def show_blogs():
-    # need this if statement to deal with two diff get posts 
-    # the first is the case when we want the blog list to load
-    # the sedond is when we want to view a page with only one  specified blog
+    #show all non-hidden blogs from all users
     if (request.args.get('user') == None or request.args.get('user') == '') and (request.args.get('id') == None or request.args.get('id') == '') and (request.args.get('username') == None or request.args.get('username') == ''):
         page = request.args.get('page', 1, type=int)
         blogs = Blog.query.filter_by(hidden=False).order_by(desc(Blog.pub_date)).paginate(page=page, per_page=5)
         return render_template('blog-list.html', blogs=blogs, header_title="Blogs")
+    #show one specific blog
     elif request.args.get('id') != None:
         blog_id = request.args.get('id')
         blog = Blog.query.get(blog_id)
@@ -167,6 +177,7 @@ def show_blogs():
             return render_template('blog-page.html', blog=blog, header_title=header_title, curr_user=curr_user)
         else:
             return render_template('blog-page.html', blog=blog, header_title=header_title)
+    #show blogs by one blogger who is not the signed in user
     elif request.args.get('user') != None:
         page = request.args.get('page', 1, type=int)
         user_id = request.args.get('user')
@@ -178,11 +189,19 @@ def show_blogs():
             return render_template('blog-list.html', blogs=blogs, owner_id=user.id, header_title=header_title, curr_user=curr_user)
         else:
             return render_template('blog-list.html', blogs=blogs, owner_id=user_id, header_title=header_title)
+    #show blogs by signed in user
     elif request.args.get('username') == 'current':
         page = request.args.get('page', 1, type=int)
         user = User.query.filter_by(username=session['username']).first()
         header_title = 'Blogs by ' + user.username
         blogs = Blog.query.filter_by(owner_id=user.id, hidden=False).order_by(desc(Blog.pub_date)).paginate(page=page, per_page=5)
+        return render_template('blog-list.html', blogs=blogs, owner_id=user.id, header_title=header_title, curr_user=user)
+    #show archived blogs by signed in user
+    elif request.args.get('username') == 'archive':
+        page = request.args.get('page', 1, type=int)
+        user = User.query.filter_by(username=session['username']).first()
+        header_title = 'Archived Blogs by ' + user.username
+        blogs = Blog.query.filter_by(owner_id=user.id, hidden=True).order_by(desc(Blog.pub_date)).paginate(page=page, per_page=5)
         return render_template('blog-list.html', blogs=blogs, owner_id=user.id, header_title=header_title, curr_user=user)
         
 
@@ -246,18 +265,9 @@ def update_blog():
     
     return redirect('/blog?id='+str(blog_id))
 
-# asks the user to verify that they want to delete an entry
+# updates the entry to "hide" the blog entry
 @app.route('/delete-blog', methods=['POST'])
 def delete_blog():
-
-    blog_id = int(request.form.get('blog-id'))
-    blog = Blog.query.get(blog_id)
-
-    return render_template('verify-delete.html', blog=blog, header_title="Are you sure you want to delete?")
-
-# updates the entry to "hide" the blog entry
-@app.route('/complete-delete', methods=['POST'])
-def complete_delete():
 
     blog_id = int(request.form.get('blog-id'))
     blog = Blog.query.get(blog_id)
@@ -266,6 +276,18 @@ def complete_delete():
     db.session.commit()
 
     return redirect("/blog")
+
+# updates the entry to "restore" the archived blog entry
+@app.route('/restore-blog', methods=['POST'])
+def restore_blog():
+
+    blog_id = int(request.form.get('blog-id'))
+    blog = Blog.query.get(blog_id)
+    blog.hidden = False
+    db.session.add(blog)
+    db.session.commit()
+
+    return redirect('/blog')
 
 
 

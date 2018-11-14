@@ -19,7 +19,8 @@
 <header>
     <div style="float: left">
         {% if 'username' in session %}
-        <a style="text-decoration: none;" href="/"><h5>Bloggers</h5></a> | <a style="text-decoration: none;" href="/blog"><h5>Blogs</h5></a> | <a style="text-decoration: none;" href="/blog?username=current"><h5>My Blogs</h5></a>
+        <a style="text-decoration: none;" href="/"><h5>Bloggers</h5></a> | <a style="text-decoration: none;" href="/blog"><h5>Blogs</h5></a> | <a style="text-decoration: none;" href="/blog?username=current"><h5>My Blogs</h5></a> | <a style="text-decoration: none;" href="/blog?username=archive"><h5>My Archives</h5></a>
+
         {% else %}
         <a style="text-decoration: none;" href="/"><h5>Bloggers</h5></a> | <a style="text-decoration: none;" href="/blog"><h5>Blogs</h5></a>
         {% endif %}

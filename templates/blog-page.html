@@ -10,10 +10,17 @@
         <input type="hidden" name="blog-id" value="{{blog.id}}"/>
         <input class="submit-button" type="submit" value="edit"/>
     </form>
+    {% if blog.hidden == 0%}
     <form style="display: inline;" action="/delete-blog" method="post">
         <input type="hidden" name="blog-id" value="{{blog.id}}"/>
-        <input class="submit-button" type="submit" value="delete"/>
+        <input class="submit-button" type="submit" value="archive"/>
     </form>
+    {% else %}
+    <form style="display: inline;" action="/restore-blog" method="post">
+        <input type="hidden" name="blog-id" value="{{blog.id}}"/>
+        <input class="submit-button" type="submit" value="restore"/>
+    </form>
+    {% endif %}
 </div>
 {% endif %}
 <hr/>
