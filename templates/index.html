@@ -8,7 +8,7 @@
     <ul>
         {% for user in users.items %}
             <p></p>
-            <a href="/blog?user={{user.id}}"><h4>{{ user.username }}</h4></a>
+            <a style="text-decoration: none;" href="/blog?user={{user.id}}"><h4>{{ user.username }}</h4></a>
             <p></p>
             <hr />
         {% endfor %}
@@ -19,9 +19,9 @@
 {% for page_num in users.iter_pages() %}
     {% if page_num %}
         {% if page_num == users.page %}
-            <a href="{{ url_for('index', page=page_num)}}"><span style="font-weight: bold;">{{ page_num }}</span></a>
+            <a style="text-decoration: none;" href="{{ url_for('index', page=page_num)}}"><span style="font-weight: bold;">{{ page_num }}</span></a>
         {% else %}
-            <a href="{{ url_for('index', page=page_num)}}">{{ page_num }}</a>
+            <a style="text-decoration: none;" href="{{ url_for('index', page=page_num)}}">{{ page_num }}</a>
         {% endif %}
     {% else %}
         ...
