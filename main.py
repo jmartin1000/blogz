@@ -193,14 +193,14 @@ def show_blogs():
     elif request.args.get('username') == 'current':
         page = request.args.get('page', 1, type=int)
         user = User.query.filter_by(username=session['username']).first()
-        header_title = 'Blogs by ' + user.username
+        header_title = 'My Blogs'
         blogs = Blog.query.filter_by(owner_id=user.id, hidden=False).order_by(desc(Blog.pub_date)).paginate(page=page, per_page=5)
         return render_template('blog-list.html', blogs=blogs, owner_id=user.id, header_title=header_title, curr_user=user)
     #show archived blogs by signed in user
     elif request.args.get('username') == 'archive':
         page = request.args.get('page', 1, type=int)
         user = User.query.filter_by(username=session['username']).first()
-        header_title = 'Archived Blogs by ' + user.username
+        header_title = 'My Archives'
         blogs = Blog.query.filter_by(owner_id=user.id, hidden=True).order_by(desc(Blog.pub_date)).paginate(page=page, per_page=5)
         return render_template('blog-list.html', blogs=blogs, owner_id=user.id, header_title=header_title, curr_user=user)
         
@@ -270,24 +270,26 @@ def update_blog():
 def delete_blog():
 
     blog_id = int(request.form.get('blog-id'))
+    id_owner = request.form.get('owner-id')
     blog = Blog.query.get(blog_id)
     blog.hidden = True
     db.session.add(blog)
     db.session.commit()
 
-    return redirect("/blog")
+    return redirect("/blog?user=" + id_owner)
 
 # updates the entry to "restore" the archived blog entry
 @app.route('/restore-blog', methods=['POST'])
 def restore_blog():
 
     blog_id = int(request.form.get('blog-id'))
+    id_owner = request.form.get('owner-id')
     blog = Blog.query.get(blog_id)
     blog.hidden = False
     db.session.add(blog)
     db.session.commit()
 
-    return redirect('/blog')
+    return redirect("/blog?user=" + id_owner)
 
 
 
